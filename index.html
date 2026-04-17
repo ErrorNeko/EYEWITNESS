@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Eyewitness · 都市论坛</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #7f8c8d;
+            background-image: radial-gradient(#6e7b7c 1px, transparent 1px);
+            background-size: 20px 20px;
+            font-family: 'Courier New', '宋体', 'Segoe UI', 'Lucida Grande', 'Tahoma', monospace;
+            font-size: 14px;
+            color: #1e1b1a;
+            padding: 20px;
+        }
+
+        /* CRT扫描线 */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            background: repeating-linear-gradient(0deg, rgba(0,0,0,0.03) 0px, rgba(0,0,0,0.03) 2px, transparent 2px, transparent 6px);
+            z-index: 9999;
+        }
+
+        .forum-container {
+            max-width: 1280px;
+            margin: 0 auto;
+            background: #e9e5d9;
+            border: 3px ridge #b0a07c;
+            box-shadow: 8px 8px 12px rgba(0,0,0,0.3);
+            padding: 12px 16px 20px 16px;
+        }
+
+        .forum-header {
+            border-bottom: 2px solid #a28b60;
+            margin-bottom: 18px;
+            padding-bottom: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+        .logo-area {
+            display: flex;
+            align-items: baseline;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            font-family: 'Courier New', 'Times New Roman', serif;
+            background: #1e2a2e;
+            color: #f7d44a;
+            padding: 2px 10px;
+            letter-spacing: 2px;
+            border: 2px outset #cbae76;
+            text-shadow: 2px 2px 0 #4a2e1e;
+        }
+        .sub {
+            font-size: 11px;
+            background: #c2b28b;
+            padding: 2px 6px;
+            color: #2c2c2c;
+            font-weight: bold;
+            border: 1px inset #a0906a;
+        }
+        .header-links {
+            font-size: 12px;
+            background: #dbd1bc;
+            padding: 4px 8px;
+            border: 1px solid #a5966e;
+        }
+        .header-links a {
+            color: #4a2c12;
+            text-decoration: none;
+            font-weight: bold;
+            margin: 0 5px;
+        }
+        .header-links a:hover {
+            background: #fff0c0;
+            text-decoration: underline;
+        }
+
+        .forum-main {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-top: 15px;
+        }
+        .clues-area {
+            flex: 2.5;
+            min-width: 260px;
+        }
+        .sidebar-area {
+            flex: 1.2;
+            min-width: 220px;
+        }
+
+        .forum-block {
+            background: #fcf8e8;
+            border: 2px groove #b6a177;
+            margin-bottom: 24px;
+            padding: 6px 8px 10px 8px;
+        }
+        .block-title {
+            background: #c0ab7a;
+            color: #1f2b1c;
+            font-weight: bold;
+            font-size: 15px;
+            padding: 4px 8px;
+            margin: -6px -8px 12px -8px;
+            border-bottom: 2px ridge #9e8b60;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .thread-list {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+        .thread-item {
+            background: #fffaf0;
+            border: 2px ridge #bfa87c;
+            padding: 10px 12px 12px 12px;
+            transition: all 0.1s linear;
+            cursor: pointer;
+        }
+        .thread-item:hover {
+            background: #fff3df;
+            border-color: #9a7e50;
+        }
+        .thread-head {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: baseline;
+            border-bottom: 1px dashed #c6b48b;
+            padding-bottom: 6px;
+            margin-bottom: 10px;
+        }
+        .thread-title {
+            font-size: 18px;
+            font-weight: bold;
+            font-family: 'Courier New', 'Times New Roman', serif;
+            background: #f0e2c5;
+            display: inline-block;
+            padding: 0 5px;
+            letter-spacing: -0.5px;
+        }
+        .thread-title a {
+            color: #5c3e1a;
+            text-decoration: none;
+        }
+        .thread-meta {
+            font-size: 11px;
+            color: #5a4a30;
+            background: #e7ddc3;
+            padding: 2px 6px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .thread-meta i {
+            margin-right: 3px;
+        }
+        .thread-content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin: 12px 0 12px 0;
+        }
+        .thread-text {
+            flex: 2;
+            min-width: 180px;
+            line-height: 1.5;
+            font-size: 13px;
+            color: #2b2a27;
+        }
+        .thread-text p {
+            margin-bottom: 6px;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+        }
+        .clue-img {
+            flex: 1;
+            min-width: 140px;
+            text-align: center;
+            background: #e9dfcb;
+            border: 1px solid #c0a16b;
+            padding: 5px;
+        }
+        .clue-img img {
+            max-width: 100%;
+            height: auto;
+            border: 2px solid #b2884a;
+            background: white;
+        }
+        .img-caption {
+            font-size: 10px;
+            margin-top: 4px;
+            font-style: italic;
+        }
+        .thread-footer {
+            display: flex;
+            justify-content: space-between;
+            border-top: 1px dotted #b7a16e;
+            padding-top: 8px;
+            margin-top: 6px;
+            font-size: 11px;
+            color: #5b4c30;
+        }
+        .post-signature {
+            font-family: monospace;
+            letter-spacing: 0.5px;
+        }
+        .post-stats i {
+            margin-right: 5px;
+        }
+        .old-badge {
+            background: #bfac80;
+            color: #202010;
+            font-size: 10px;
+            padding: 1px 6px;
+            border-radius: 0;
+            font-weight: bold;
+        }
+
+        .info-panel {
+            background: #f3efdf;
+            border: 1px solid #cbbf9a;
+            padding: 8px;
+            margin-bottom: 18px;
+        }
+        .info-title {
+            background: #cfbc8f;
+            padding: 3px 6px;
+            font-weight: bold;
+            font-size: 13px;
+            border-bottom: 1px solid #aa8f5a;
+            margin-bottom: 8px;
+        }
+        .user-online-list {
+            list-style: none;
+            margin-top: 5px;
+        }
+        .user-online-list li {
+            font-size: 12px;
+            border-bottom: 1px dotted #dbceac;
+            padding: 4px 2px;
+        }
+        .forum-stats {
+            font-size: 12px;
+            line-height: 1.6;
+        }
+        .announce {
+            background: #e2d5b6;
+            border-left: 4px solid #a5692c;
+            padding: 6px;
+            margin: 8px 0;
+        }
+        hr.dashed {
+            border-top: 1px dashed #b6a064;
+            margin: 8px 0;
+        }
+        .pagination-dummy {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 12px;
+            background: #ddd1b6;
+            padding: 5px;
+            border: 1px solid #ac9a72;
+            cursor: pointer;
+        }
+        .pagination-dummy:hover {
+            background: #cfc19b;
+        }
+        @media (max-width: 780px) {
+            body { padding: 10px; }
+            .forum-main { flex-direction: column; }
+            .thread-content { flex-direction: column; }
+        }
+        .old-button {
+            background: #ccc2a6;
+            border: 2px outset #ede0c8;
+            color: #2a2418;
+            padding: 2px 8px;
+            font-family: monospace;
+            font-size: 11px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .footer-text {
+            margin-top: 22px;
+            text-align: center;
+            font-size: 10px;
+            border-top: 1px solid #bbaa80;
+            padding-top: 14px;
+            color: #3f3a2c;
+        }
+
+        /* 模态框样式 (复古拟真) */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 10001;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.7);
+            backdrop-filter: blur(2px);
+        }
+        .modal-content {
+            background-color: #fef7e8;
+            margin: 5% auto;
+            padding: 20px;
+            border: 8px double #b28b5e;
+            width: 80%;
+            max-width: 800px;
+            box-shadow: 10px 10px 20px rgba(0,0,0,0.5);
+            font-family: 'Courier New', monospace;
+            position: relative;
+        }
+        .close-modal {
+            color: #7a5a3a;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close-modal:hover {
+            color: #2c1c0c;
+        }
+        .modal-title {
+            font-size: 22px;
+            font-weight: bold;
+            background: #e6dcc0;
+            padding: 5px 10px;
+            margin-bottom: 15px;
+            border-left: 8px solid #8b6946;
+        }
+        .modal-meta {
+            background: #e2d6bc;
+            padding: 6px 10px;
+            margin-bottom: 15px;
+            font-size: 12px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .modal-content-full {
+            line-height: 1.6;
+            font-size: 14px;
+            margin: 15px 0;
+            white-space: pre-wrap;
+        }
+        .modal-img {
+            text-align: center;
+            margin: 15px 0;
+        }
+        .modal-img img {
+            max-width: 100%;
+            border: 3px solid #a77d48;
+            background: white;
+            padding: 4px;
+        }
+        hr.modal-hr {
+            border-top: 1px dashed #b7a16e;
+            margin: 12px 0;
+        }
+        a, .clickable-intercept {
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<div class="forum-container">
+    <!-- 论坛头部 -->
+    <div class="forum-header">
+        <div class="logo-area">
+            <div class="logo">EYEWITNESS</div>
+            <div class="sub">目击者 · 都市传说</div>
+        </div>
+        <div class="header-links">
+            <a href="#" class="permission-restricted"><i class="fa fa-home"></i> 首页</a> |
+            <a href="#" class="permission-restricted"><i class="fa fa-search"></i> 搜索</a> |
+            <a href="#" class="permission-restricted"><i class="fa fa-user"></i> 调查员档案</a> |
+            <a href="#" class="permission-restricted"><i class="fa fa-envelope"></i> 站内信</a>
+        </div>
+    </div>
+
+    <!-- 公告横幅 -->
+    <div style="background:#c6b384; padding:4px 8px; margin-bottom:16px; border:1px solid #9e864e; font-size:12px;">
+        <i class="fa fa-bullhorn"></i> <strong>【系统广播】</strong> 夜城最新活动：目神祭典！举办地址：地上广场，x月x日晚上06:00举办夜前祭！
+    </div>
+
+    <div class="forum-main">
+        <!-- 左侧线索列表 -->
+        <div class="clues-area">
+            <div class="forum-block">
+                <div class="block-title">
+                    <i class="fa fa-file-text-o"></i> 案件卷宗 · 游戏线索帖
+                </div>
+                <div id="threadsContainer" class="thread-list">
+                    <div style="text-align:center; padding:20px;"><i class="fa fa-spinner fa-spin"></i> 加载线索中...</div>
+                </div>
+                <div class="pagination-dummy" id="paginationDummy">
+                    <i class="fa fa-chevron-circle-left"></i> 第 1 / 1 页 &nbsp;|&nbsp; 线索持续更新中 <i class="fa fa-chevron-circle-right"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- 右侧边栏 -->
+        <div class="sidebar-area">
+            <div class="info-panel">
+                <div class="info-title"><i class="fa fa-group"></i> 城市·活跃调查员</div>
+                <ul class="user-online-list">
+                    <li><i class="fa fa-user-circle"></i> 老烟枪侦探 <span class="old-badge" style="float:right;">在线</span></li>
+                    <li><i class="fa fa-user-circle"></i> 午夜档案员 <span class="old-badge" style="float:right;">在线</span></li>
+                    <li><i class="fa fa-user-circle"></i> 霓虹目击者 <span class="old-badge" style="float:right;">在线</span></li>
+                    <li><i class="fa fa-user-secret"></i> 管理员_Eye <span class="old-badge" style="float:right;">在线</span></li>
+                    <li><i class="fa fa-user"></i> 游客_8412 <span class="old-badge">浏览中</span></li>
+                </ul>
+                <hr class="dashed">
+                <div class="forum-stats">
+                    <i class="fa fa-puzzle-piece"></i> 今日线索帖: <strong>5</strong> &nbsp;| 总回帖: 247<br>
+                    <i class="fa fa-eye"></i> 最高在线: 143人 (2025.02.27)<br>
+                    <i class="fa fa-calendar"></i> 建站: 2025·都市暗涌
+                </div>
+            </div>
+
+            <div class="info-panel">
+                <div class="info-title"><i class="fa fa-info-circle"></i> 论坛使用说明</div>
+                <div style="font-size:12px;">
+                    <p>+ 本论坛用于<strong>都市传说</strong>的线上交流。<br>
+                    + 每个帖子都是一条游戏线索，<strong>点击帖子可查看完整文案与图片</strong>。<br>
+                    + 博主通过修改下方线索数据库更新剧情，所有交互链接仅限浏览模式。</p>
+                    <div class="announce">
+                        <i class="fa fa-flag-checkered"></i> <strong>最新行动代号: 无</strong><br>
+                        点击任意帖子查看完整细节。
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-panel">
+                <div class="info-title"><i class="fa fa-fire"></i> 本周热门</div>
+                <ul style="list-style: none; margin-left: 0; font-size:12px;">
+                    <li><i class="fa fa-hashtag"></i> 钟楼回声 (312次查看)</li>
+                    <li><i class="fa fa-hashtag"></i> 下水道预言 (278次查看)</li>
+                    <li><i class="fa fa-hashtag"></i> 旧剧院拍立得 (405次查看)</li>
+                </ul>
+                <hr class="dashed">
+                <div><i class="fa fa-envelope"></i> 管理员: eyewitness@citygame.ink</div>
+            </div>
+
+            <div class="info-panel">
+                <div class="info-title"><i class="fa fa-link"></i> 友链·旧日同盟</div>
+                <div style="font-size:11px;">
+                    + 档案馆 (建设中)<br>
+                    + 霓虹侦探社 · 镜像站<br>
+                    + 游戏官方 BBS (需邀请码)
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer-text">
+        <i class="fa fa-eye"></i> Eyewitness | 所有线索均为虚构游戏内容，转载需注明来源。<br>
+        Powered by 老式引擎 &nbsp;|&nbsp; 最佳浏览效果: 1024x768 , IE6 / Netscape (模拟)
+    </div>
+</div>
+
+<!-- 模态框结构 -->
+<div id="postModal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal">&times;</span>
+        <div class="modal-title" id="modalTitle"></div>
+        <div class="modal-meta" id="modalMeta"></div>
+        <div class="modal-content-full" id="modalContent"></div>
+        <div class="modal-img" id="modalImage"></div>
+        <hr class="modal-hr">
+        <div id="modalFooter" style="font-size:11px; color:#5a4a30;"></div>
+    </div>
+</div>
+
+<script>
+    // ==============================================================
+    // 游戏线索数据库 (博主可自由增删改查，每个帖子可自定义作者)
+    // 增加 author 字段实现发布人自定义
+    // ==============================================================
+    const cluesArchive = [
+        {
+            id: 1,
+            title: "地下铁 · 子夜目击记录",
+            content: "【线索档案A-07】监控室留存录像显示，23:47 最后一班列车，第三节车厢出现戴兜帽的神秘人。遗留下一张拍立得照片，背景为废弃的「利维坦剧院」。据调查，剧院后巷第三个消防栓内侧刻有字母『WITNESS』。调查员请留意舞台暗格。\n\n额外细节：拍立得背面用铅笔写着“他们听得到”，剧院售票窗口附近有一幅被涂鸦覆盖的旧海报，掀开后发现一个生锈的铁盒，里面是半张地图。",
+            imageUrl: "https://picsum.photos/id/104/500/300",
+            date: "2025-02-18",
+            replies: 24,
+            views: 312,
+            author: "午夜档案员"
+        },
+        {
+            id: 2,
+            title: "工业区 · 锈蚀烟囱暗号",
+            content: "北区废弃钢铁厂，西侧墙壁涂鸦一只睁开的眼睛和倒置的时钟。使用紫外线灯(UV)照射，出现坐标提示: 40.7128°N, 74.0060°W 附近。同时涂鸦下方有石灰字:『当第十三声钟响，真相浮出』。建议前往起重机控制室寻找日志残页。\n\n起重机控制室第二格抽屉里发现一本工作日志，最后一页写着“他们改造了钟楼齿轮，午夜十三响是信号”。",
+            imageUrl: "https://picsum.photos/id/466/500/300",
+            date: "2025-02-20",
+            replies: 42,
+            views: 568,
+            author: "老烟枪侦探"
+        },
+        {
+            id: 3,
+            title: "幽灵频率 · 99.9MHz",
+            content: "短波收音机调至99.9MHz，深夜2点会收到循环噪音。倒放处理得到女声指引:『玫瑰墓地第七个墓碑下藏有铜钥匙，开启旧教堂地下密室』。图片中是老式收音机和一张泛黄频率图。关键线索: 墓碑编号F-07。\n\n钥匙实际藏在F-07墓碑后的一个锡盒里，盒盖上刻着“第三只眼将开启真相之门”。",
+            imageUrl: "https://picsum.photos/id/269/500/300",
+            date: "2025-02-22",
+            replies: 37,
+            views: 423,
+            author: "霓虹目击者"
+        },
+        {
+            id: 4,
+            title: "中央公园 · 长椅遗言",
+            content: "东区78号长椅背面刻字『LOST & FOUND』。撬开椅板发现一本防水日记，记载坐标和一句话:『虹膜识别需要第三只眼』。下一阶段线索位于城市图书馆地下档案室，编号『H-201』的盒子内藏有照片。注意: 管理员提示门口有监控死角。\n\n日记中还夹着一张图书馆平面图，标注了通风管道入口，可绕过监控。",
+            imageUrl: "https://picsum.photos/id/112/500/300",
+            date: "2025-02-25",
+            replies: 53,
+            views: 702,
+            author: "午夜档案员"
+        },
+        {
+            id: 5,
+            title: "下水道壁画 · 预言数列",
+            content: "第七区下水道岔路口壁画: 六个诡异符号加倒五角星。用手机黑白滤镜拍照后浮现数字组合『9-23-5-14-5-19-19』，对应字母表暗示『WITNESS』。此乃虚拟门禁暗语，前往网络聊天室#eyewitness_city输入该词获取下一步位置。\n\n聊天室机器人会自动回复一个坐标：旧钟楼地下二层，注意携带紫光灯。",
+            imageUrl: "https://picsum.photos/id/163/500/300",
+            date: "2025-02-27",
+            replies: 68,
+            views: 892,
+            author: "管理员_Eye"
+        },
+        {
+            id: 6,
+            title: "老城区电影院 · 最后一帧",
+            content: "利马影院废墟，放映室遗留一卷35mm胶片。最后一帧画面显示钟楼尖顶和“18:30:00”字样。暗指本周六下午六点半，钟楼广场喷泉旁将出现信使。接头暗号:『我是夜鸮』。胶片盒底部藏有一张手绘地图标记地下室入口。\n\n地图标注了钟楼地下迷宫路线，最终房间内有一台老旧电报机，发送“WITNESS”会收到下一阶段提示。",
+            imageUrl: "https://picsum.photos/id/20/500/300",
+            date: "2025-03-01",
+            replies: 91,
+            views: 1104,
+            author: "老烟枪侦探"
+        }
+    ];
+
+    // 渲染线索帖子
+    function renderThreads() {
+        const container = document.getElementById('threadsContainer');
+        if (!container) return;
+        if (!cluesArchive.length) {
+            container.innerHTML = '<div style="padding:20px; text-align:center;">[ 无任何线索，等待管理员发布新帖 ]</div>';
+            return;
+        }
+
+        let html = '';
+        cluesArchive.forEach((clue) => {
+            const safeTitle = escapeHtml(clue.title);
+            // 预览内容只显示前100字符 + ...
+            let previewContent = escapeHtml(clue.content).replace(/\n/g, ' ');
+            if (previewContent.length > 120) previewContent = previewContent.substring(0, 120) + '...';
+            const imgUrl = clue.imageUrl || 'https://picsum.photos/id/22/320/200';
+            const postDate = clue.date || '未知日期';
+            const repliesCount = clue.replies !== undefined ? clue.replies : 0;
+            const viewsCount = clue.views !== undefined ? clue.views : 0;
+            const authorName = escapeHtml(clue.author) || '匿名调查员';
+            
+            html += `
+                <div class="thread-item" data-id="${clue.id}">
+                    <div class="thread-head">
+                        <div class="thread-title">
+                            <i class="fa fa-commenting"></i> <span class="thread-link">${safeTitle}</span>
+                        </div>
+                        <div class="thread-meta">
+                            <span><i class="fa fa-user"></i> ${authorName}</span>
+                            <span><i class="fa fa-calendar"></i> ${postDate}</span>
+                        </div>
+                    </div>
+                    <div class="thread-content">
+                        <div class="thread-text">
+                            <p>${previewContent}</p>
+                            <div style="margin-top:6px;"><span class="old-badge"><i class="fa fa-tag"></i> 线索编号 #${clue.id}</span></div>
+                        </div>
+                        <div class="clue-img">
+                            <img src="${imgUrl}" alt="线索配图" loading="lazy" onerror="this.src='https://picsum.photos/id/106/320/200'">
+                            <div class="img-caption">▲ 目击者影像资料</div>
+                        </div>
+                    </div>
+                    <div class="thread-footer">
+                        <div class="post-signature">
+                            <i class="fa fa-pencil-square-o"></i> 签名: 霓虹灯下的守夜人
+                        </div>
+                        <div class="post-stats">
+                            <i class="fa fa-comment-o"></i> 回复 ${repliesCount} &nbsp;|&nbsp;
+                            <i class="fa fa-eye"></i> 查看 ${viewsCount}
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        container.innerHTML = html;
+        
+        // 绑定每个帖子的点击事件（弹窗显示完整内容）
+        document.querySelectorAll('.thread-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                // 阻止冒泡，避免误触发其他拦截（但本身不需要拦截）
+                e.stopPropagation();
+                const id = parseInt(item.getAttribute('data-id'));
+                const clue = cluesArchive.find(c => c.id === id);
+                if (clue) {
+                    showModal(clue);
+                }
+            });
+        });
+    }
+
+    // 显示模态框完整内容
+    function showModal(clue) {
+        const modal = document.getElementById('postModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalMeta = document.getElementById('modalMeta');
+        const modalContent = document.getElementById('modalContent');
+        const modalImage = document.getElementById('modalImage');
+        const modalFooter = document.getElementById('modalFooter');
+        
+        modalTitle.innerHTML = escapeHtml(clue.title);
+        modalMeta.innerHTML = `
+            <span><i class="fa fa-user"></i> 发布人: ${escapeHtml(clue.author) || '匿名调查员'}</span>
+            <span><i class="fa fa-calendar"></i> 发布日期: ${clue.date || '未知'}</span>
+            <span><i class="fa fa-comment"></i> 回复: ${clue.replies}</span>
+            <span><i class="fa fa-eye"></i> 查看: ${clue.views}</span>
+        `;
+        // 完整文案（保留换行）
+        modalContent.innerHTML = escapeHtml(clue.content).replace(/\n/g, '<br>');
+        modalImage.innerHTML = `<img src="${clue.imageUrl}" alt="完整线索图片" style="max-width:100%; border:2px solid #b2884a;" onerror="this.src='https://picsum.photos/id/106/500/300'">`;
+        modalFooter.innerHTML = `<i class="fa fa-info-circle"></i> 线索编号 #${clue.id} · 目击者论坛归档 · 点击外部关闭`;
+        
+        modal.style.display = 'block';
+    }
+
+    // XSS防护
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+
+    // 权限不足拦截（仅针对非帖子元素）
+    function addPermissionInterceptor() {
+        // 所有带有 .permission-restricted 的链接及特定区域的链接
+        const restrictedSelectors = [
+            '.header-links a',
+            '#paginationDummy',
+            '.info-panel a',
+            '.old-button',
+            '.sidebar-area .fa-envelope',   // 邮箱区域
+            '.footer-text a'
+        ];
+        restrictedSelectors.forEach(selector => {
+            document.querySelectorAll(selector).forEach(el => {
+                el.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    alert('权限不足，您目前仅能浏览界面。');
+                });
+            });
+        });
+        // 额外拦截所有友链和未分类链接（但排除帖子内的 .thread-link 因为点击已经由父级处理）
+        const allExtraLinks = document.querySelectorAll('a:not(.thread-link)');
+        allExtraLinks.forEach(link => {
+            // 避免重复绑定
+            if (!link.classList.contains('permission-restricted') && !link.closest('.thread-item')) {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    alert('权限不足，您目前仅能浏览界面。');
+                });
+            }
+        });
+        // 分页dummy已经单独处理
+    }
+
+    // 模态框关闭逻辑
+    function initModal() {
+        const modal = document.getElementById('postModal');
+        const closeSpan = document.querySelector('.close-modal');
+        closeSpan.onclick = function() {
+            modal.style.display = 'none';
+        };
+        window.onclick = function(event) {
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        };
+    }
+
+    // 页面加载
+    document.addEventListener('DOMContentLoaded', () => {
+        renderThreads();
+        addPermissionInterceptor();
+        initModal();
+        console.log("%cEyewitness 论坛已启动 | 点击任意帖子查看完整内容，作者已支持自定义", "color: #a55820; font-size: 14px; background: #f4eacc; padding: 4px;");
+        // 右下角状态条
+        let statusMsg = document.createElement('div');
+        statusMsg.style.position = 'fixed';
+        statusMsg.style.bottom = '10px';
+        statusMsg.style.right = '10px';
+        statusMsg.style.background = '#3b3220';
+        statusMsg.style.color = '#cbbc6b';
+        statusMsg.style.fontSize = '10px';
+        statusMsg.style.padding = '2px 6px';
+        statusMsg.style.border = '1px solid #bb9a5a';
+        statusMsg.style.fontFamily = 'monospace';
+        statusMsg.style.zIndex = '10000';
+        statusMsg.innerHTML = '浏览模式 · 点击帖子可看完整线索';
+        document.body.appendChild(statusMsg);
+    });
+</script>
+</body>
+</html>
